@@ -20,11 +20,21 @@ func DocToHTML(input, outDir string) string {
 		var doc map[string]string
 		json.Unmarshal(content, &doc)
 		response, _ := http.Get("https://docs.google.com/feeds/download/documents/export/Export?exportFormat=html&id=" + doc["doc_id"])
-		newFile, _ := os.Create(outDir + "/" + strings.Replace(file.Name(), "gdoc", "html", -1))
+		newFile, _ := os.Create(outDir + "/" + strings.Replace(kebab(file.Name()), "gdoc", "html", -1))
 		io.Copy(newFile, response.Body)
 	}
 
 	return outDir
+}
+
+func kebab(s string) string {
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, ",", "")
+	s = strings.ReplaceAll(s, "'", "")
+	s = strings.ReplaceAll(s, "\"", "")
+	s = strings.ReplaceAll(s, "(", "")
+	s = strings.ReplaceAll(s, ")", "")
+	return strings.ReplaceAll(s, " ", "-")
 }
 
 // func HTMLtoMD(input, outDir string) {
