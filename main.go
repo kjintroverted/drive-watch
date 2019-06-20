@@ -39,6 +39,7 @@ func main() {
 			os.Mkdir(file.Name(), 0774)
 			drive.AllHTMLtoMD(tmp, file.Name())
 			fmt.Println("Converted")
+			os.RemoveAll(tmp)
 			
 			err = watcher.Add(os.Args[1] + "/" + file.Name())
 			errCheck(err, "watching file "+file.Name())
