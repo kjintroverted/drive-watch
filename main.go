@@ -23,19 +23,21 @@ func main() {
 	errCheck(err, "watching parent")
 	fmt.Println("watching parent", os.Args[1])
 
-	// watch children
+	// handle children
 	files, err := ioutil.ReadDir(os.Args[1])
 	errCheck(err, "reading "+os.Args[1])
 
 	for _, file := range files {
 		if file.IsDir() {
+			
 			fmt.Println("Downloading from", file.Name())
 			tmp, _ := ioutil.TempDir(".", file.Name())
-			drive.DocToHTML(os.Args[1]+"/"+file.Name(), tmp)
+			drive.AllDocToHTML(os.Args[1]+"/"+file.Name(), tmp)
 			fmt.Println("Downloaded")
+			
 			fmt.Println("Converting to markdown...")
 			os.Mkdir(file.Name(), 0774)
-			drive.HTMLtoMD(tmp, file.Name())
+			drive.AllHTMLtoMD(tmp, file.Name())
 			fmt.Println("Converted")
 			
 			err = watcher.Add(os.Args[1] + "/" + file.Name())

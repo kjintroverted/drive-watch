@@ -11,38 +11,45 @@ import (
 	md "github.com/lunny/html2md"
 )
 
-func DocToHTML(input, outDir string) {
+func AllDocToHTML(input, outDir string) {
 	files, _ := ioutil.ReadDir(input)
-
 	for _, file := range files {
-		if strings.Index(file.Name(), ".gdoc") < 0 {
-			continue
-		}
-		content, _ := ioutil.ReadFile(input + "/" + file.Name())
-		var doc map[string]string
-		json.Unmarshal(content, &doc)
-		response, _ := http.Get("https://docs.google.com/feeds/download/documents/export/Export?exportFormat=html&id=" + doc["doc_id"])
-		fileName := strings.ReplaceAll(kebab(file.Name()), "gdoc", "html")
-		newFile, _ := os.Create(outDir + "/" + fileName)
-		io.Copy(newFile, response.Body)
-		os.Chmod(outDir+"/"+fileName, 0644)
+		DocToHTML(input, file.Name(), outDir)
 	}
 }
 
-func HTMLtoMD(input, outDir string) {
+func DocToHTML(path, name, outDir string) {
+	if strings.Index(name, ".gdoc") < 0 {
+		return
+	}
+	content, _ := ioutil.ReadFile(path + "/" + name)
+	var doc map[string]string
+	json.Unmarshal(content, &doc)
+	response, _ := http.Get("https://docs.google.com/feeds/download/documents/export/Export?exportFormat=html&id=" + doc["doc_id"])
+	fileName := strings.ReplaceAll(kebab(name), "gdoc", "html")
+	newFile, _ := os.Create(outDir + "/" + fileName)
+	io.Copy(newFile, response.Body)
+	os.Chmod(outDir+"/"+fileName, 0644)
+}
+
+func AllHTMLtoMD(input, outDir string) {
 	files, _ := ioutil.ReadDir(input)
 	for _, file := range files {
-		if strings.Index(file.Name(), ".html") < 0 {
-			continue
-		}
-		raw, _ := ioutil.ReadFile(input+"/"+file.Name())
-		err := ioutil.WriteFile(
-			outDir+"/"+strings.ReplaceAll(kebab(file.Name()), "html", "md"), 
-			[]byte(md.Convert(string(raw))), 
-			0644) 
-		if err != nil {
-			fmt.Println("ERROR", err)
-		}
+		HTMLtoMD(input, file.Name(), outDir)
+	}
+}
+
+func HTMLtoMD(path, name, outDir string) {
+	if strings.Index(name, ".html") < 0 {
+		return
+	}
+	raw, _ := ioutil.ReadFile(path+"/"+name)
+	err := ioutil.WriteFile(
+		outDir+"/"+strings.ReplaceAll(kebab(name), "html", "md"), 
+		[]byte(md.Convert(string(raw))), 
+		0644) 
+	if err != nil {
+		fmt.Println("ERROR", err)
 	}
 }
 
