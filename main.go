@@ -33,6 +33,10 @@ func main() {
 			tmp, _ := ioutil.TempDir(".", file.Name())
 			drive.DocToHTML(os.Args[1]+"/"+file.Name(), tmp)
 			fmt.Println("Downloaded")
+			fmt.Println("Converting to markdown...")
+			os.Mkdir(file.Name(), 0774)
+			drive.HTMLtoMD(tmp, file.Name())
+			fmt.Println("Converted")
 			
 			err = watcher.Add(os.Args[1] + "/" + file.Name())
 			errCheck(err, "watching file "+file.Name())
