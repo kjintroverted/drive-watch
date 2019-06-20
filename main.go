@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/kjintroverted/drive-watch/drive"
 )
 
 func main() {
@@ -28,10 +29,15 @@ func main() {
 
 	for _, file := range files {
 		if file.IsDir() {
+			fmt.Println("Downloading from", file.Name())
+			tmp, _ := ioutil.TempDir(".", file.Name())
+			drive.DocToHTML(os.Args[1]+"/"+file.Name(), tmp)
+			fmt.Println("Downloaded")
+			
 			err = watcher.Add(os.Args[1] + "/" + file.Name())
 			errCheck(err, "watching file "+file.Name())
 			fmt.Println("watching", file.Name())
-		}
+		} 
 	}
 
 	<-done
