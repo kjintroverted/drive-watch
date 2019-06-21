@@ -74,7 +74,6 @@ func handleEvents(watcher *fsnotify.Watcher, source, outSource string) {
 		
 		fmt.Println("Converting to markdown...")
 		os.Mkdir(outSource+"/"+dirName, 0774)
-		fmt.Println(tmp, outSource+"/"+dirName)
 		drive.AllHTMLtoMD(tmp, outSource+"/"+dirName)
 		fmt.Println("Converted")
 		os.RemoveAll(tmp)

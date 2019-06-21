@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	md "github.com/lunny/html2md"
+	md "github.com/kjintroverted/html-to-markdown"
 )
 
 func AllDocToHTML(input, outDir string) {
@@ -43,10 +43,14 @@ func HTMLtoMD(path, name, outDir string) {
 	if strings.Index(name, ".html") < 0 {
 		return
 	}
+
 	raw, _ := ioutil.ReadFile(path+"/"+name)
+	
+	converter := md.NewConverter("", true, nil)
+	mdContent, _ := converter.ConvertString(string(raw))
 	err := ioutil.WriteFile(
 		outDir+"/"+strings.ReplaceAll(kebab(name), "html", "md"), 
-		[]byte(md.Convert(string(raw))), 
+		[]byte(mdContent), 
 		0644) 
 	if err != nil {
 		fmt.Println("ERROR", err)
