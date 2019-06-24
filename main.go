@@ -33,6 +33,9 @@ func main() {
 
 	for _, file := range files {
 		if file.IsDir() {
+			if strings.ToLower(file.Name()) == "drafts" {
+				continue
+			} 
 			
 			fmt.Println("Downloading from", file.Name())
 			tmp, _ := ioutil.TempDir(".", file.Name())
@@ -64,9 +67,25 @@ func handleEvents(watcher *fsnotify.Watcher, source, outSource string) {
 	for {
 		event := <-watcher.Events
 		fmt.Println("EVENT:", event.Op, "for", strings.ReplaceAll(event.Name, source, ""))
+
+		info, _ := os.Stat(event.Name)
+
+		if info.IsDir() {
+			if strings.ToLower(info.Name()) == "drafts" {
+				continue
+			}
+			os.Mkdir(outSource+"/"+info.Name(), 0777)
+			watcher.Add(event.Name)
+			fmt.Println("watching", info.Name(), "directory")
+			continue
+		}
+
 		paths := strings.Split(event.Name, "/")
 		fileName := paths[len(paths) - 1]
 		dirName := paths[len(paths) - 2]
+		if strings.ToLower(dirName) == "drafts" {
+			continue
+		}
 		
 		tmp, _ := ioutil.TempDir(".", dirName)
 		drive.DocToHTML(source+"/"+dirName, fileName, tmp)
