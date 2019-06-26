@@ -30,7 +30,7 @@ func DocToHTML(path, name, outDir string) {
 		return
 	}
 
-	fileName := strings.ReplaceAll(kebab(name), ".gdoc", "")
+	fileName := strings.ReplaceAll(Kebab(name), ".gdoc", "")
 
 	// SAVE METADATA AS JSON
 	info, _ := os.Stat(path + "/" + name)
@@ -59,12 +59,14 @@ func HTMLtoMD(path, name, outDir string) {
 		return
 	}
 
-	fileName := strings.ReplaceAll(kebab(name), ".html", "")
+	fileName := strings.ReplaceAll(Kebab(name), ".html", "")
 
 	// CONVERT HTML
 	converter := md.NewConverter("", true, nil)
 	raw, _ := ioutil.ReadFile(path + "/" + name)
 	mdContent, _ := converter.ConvertString(string(raw))
+
+	mdContent = unescape(mdContent, "`", "\\")
 
 	// ADD FRONT MATTER
 	fileDataRaw, _ := ioutil.ReadFile(path + "/" + fileName + ".json")
@@ -85,7 +87,7 @@ lastUpdated: %s
 	}
 }
 
-func kebab(s string) string {
+func Kebab(s string) string {
 	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, ",", "")
 	s = strings.ReplaceAll(s, "'", "")
@@ -93,4 +95,11 @@ func kebab(s string) string {
 	s = strings.ReplaceAll(s, "(", "")
 	s = strings.ReplaceAll(s, ")", "")
 	return strings.ReplaceAll(s, " ", "-")
+}
+
+func unescape(s string, characters ...string) string {
+	for _, c := range characters {
+		s = strings.ReplaceAll(s, "\\"+c, c)
+	}
+	return s
 }
